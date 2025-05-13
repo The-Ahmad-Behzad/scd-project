@@ -44,7 +44,7 @@ jobs:
       run: |
         kubectl apply -f mongodb-config.yml
         kubectl apply -f mongodb-deployment-statefulset.yml
-        kubectl apply -f mongodb_pvc.yml
-        kubectl apply -f mongodb_secret.yml
+        kubectl apply -f mongodb-pvc.yml
+        kubectl apply -f mongodb-secret.yml
         kubectl apply -f deployment.yaml
         kubectl apply -f service.yaml

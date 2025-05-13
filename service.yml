@@ -1,0 +1,47 @@
+# mongodb-headless-service.yml:
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb 
+spec:
+  clusterIP: None
+  selector:
+    app: mongodb
+  ports:
+    - protocol: TCP
+      port: 27017
+      targetPort: 27017
+
+--- 
+
+# backend-service.yml:
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-node-backend-service
+spec:
+  type: NodePort
+  selector:
+    app: my-node-backend 
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5000
+      nodePort: 30001
+
+--- 
+
+# frontend-service.yml:
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-react-app-service
+spec:
+  type: NodePort
+  selector:
+    app: my-react-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      nodePort: 30000

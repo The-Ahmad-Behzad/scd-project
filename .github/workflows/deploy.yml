@@ -1,0 +1,49 @@
+name: Build and Deploy to Minikube
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+  
+jobs:
+  build-deploy:
+    runs-on: self-hosted
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Docker to use Minikube's environment
+      run: |
+        echo "Configuring Docker to use Minikube's daemon..."
+        eval $(minikube docker-env)
+
+    - name: Build Backend Docker image
+      run: |
+        docker build -t ahmadbehzad/scd-backend:latest ./backend
+
+    - name: Build Frontend Docker image
+      run: |
+        docker build -t ahmadbehzad/scd-frontend:latest ./bookstore
+
+    - name: Login to Docker Hub
+      run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+    - name: Push Backend Docker image to Docker Hub
+      run: docker push ahmadbehzad/scd-backend:latest
+
+    - name: Push Frontend Docker image to Docker Hub
+      run: docker push ahmadbehzad/scd-frontend:latest
+
+    - name: Deploy to Minikube
+      run: |
+        kubectl apply -f mongodb-config.yml
+        kubectl apply -f mongodb-deployment-statefulset.yml
+        kubectl apply -f mongodb_pvc.yml
+        kubectl apply -f mongodb_secret.yml
+        kubectl apply -f deployment.yml
+        kubectl apply -f service.yml
+
+     - name: Set up Docker to use Minikube's environment
+      run: |
+        echo "✅ Deployment Successful!"
